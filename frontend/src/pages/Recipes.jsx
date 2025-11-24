@@ -3,7 +3,7 @@ import { recipeAPI } from '../services/api';
 import IngredientInput from '../components/recipe/IngredientInput';
 import RecipeList from '../components/recipe/RecipeList';
 
-const Suggestions = () => {
+const Recipes = () => {
   const [ingredients, setIngredients] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -189,4 +189,4 @@ const Suggestions = () => {
   );
 };
 
-export default Suggestions;
+export default Recipes;

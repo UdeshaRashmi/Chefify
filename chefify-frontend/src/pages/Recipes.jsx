@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react'
+import RecipeList from '../components/recipe/RecipeList'
+import SearchBar from '../components/recipe/SearchBar'
 
 const Recipes = () => {
-  const [recipes, setRecipes] = useState([])
-  const [filteredRecipes, setFilteredRecipes] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [searchQuery, setSearchQuery] = useState('')
-
   // Mock data for recipes
   const mockRecipes = [
     {
@@ -64,29 +61,33 @@ const Recipes = () => {
     }
   ]
 
+  const [filteredRecipes, setFilteredRecipes] = useState(mockRecipes)
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
+
   const categories = ['All', 'Vegetarian', 'Chicken', 'Beef', 'Seafood', 'Dessert']
 
+  // Filter recipes when category or search query changes
   useEffect(() => {
-    setRecipes(mockRecipes)
-    setFilteredRecipes(mockRecipes)
-  }, [])
-
-  useEffect(() => {
-    let result = recipes
-    
-    if (selectedCategory !== 'All') {
-      result = result.filter(recipe => recipe.category === selectedCategory)
+    const filterRecipes = () => {
+      let result = mockRecipes
+      
+      if (selectedCategory !== 'All') {
+        result = result.filter(recipe => recipe.category === selectedCategory)
+      }
+      
+      if (searchQuery) {
+        result = result.filter(recipe => 
+          recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          recipe.description.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      }
+      
+      setFilteredRecipes(result)
     }
     
-    if (searchQuery) {
-      result = result.filter(recipe => 
-        recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipe.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }
-    
-    setFilteredRecipes(result)
-  }, [selectedCategory, searchQuery, recipes])
+    filterRecipes()
+  }, [selectedCategory, searchQuery])
 
   return (
     <div className="space-y-8">
@@ -101,12 +102,10 @@ const Recipes = () => {
       <div className="bg-white rounded-2xl shadow-md p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-grow">
-            <input
-              type="text"
-              placeholder="Search recipes..."
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+            <SearchBar 
+              searchQuery={searchQuery} 
+              setSearchQuery={setSearchQuery} 
+              placeholder="Search recipes..." 
             />
           </div>
           <div className="flex items-center">
@@ -140,41 +139,9 @@ const Recipes = () => {
         </div>
       </div>
 
-      {/* Recipe Grid */}
+      {/* Recipe List */}
       {filteredRecipes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredRecipes.map(recipe => (
-            <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <img 
-                src={recipe.image} 
-                alt={recipe.title} 
-                className="w-full h-56 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-xl font-bold text-gray-800">{recipe.title}</h3>
-                  <span className={`text-xs font-semibold px-2.5 py-0.5 rounded ${
-                    recipe.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                    recipe.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {recipe.difficulty}
-                  </span>
-                </div>
-                <p className="text-gray-600 mb-4">{recipe.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">{recipe.cookTime}</span>
-                  <span className="bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                    {recipe.category}
-                  </span>
-                </div>
-                <button className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                  View Recipe
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <RecipeList recipes={filteredRecipes} showViewButton={true} />
       ) : (
         <div className="text-center py-12">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
